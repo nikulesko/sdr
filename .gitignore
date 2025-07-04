@@ -1,0 +1,14 @@
+.idea/*
+
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+sdr
+
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
