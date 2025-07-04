@@ -39,7 +39,7 @@ func main() {
 		C.GoString(&hw[0]), C.GoString(&fw[0]), C.GoString(&ser[0]))
 
 	// Set up the device
-	var freqHz C.double = 107000000
+	var freqHz C.double = 106000000 // 106 MHz, for example
 	var actualFreq C.double
 	C.fobos_rx_set_frequency(dev, freqHz, &actualFreq)
 	fmt.Println("Actual frequency:", float64(actualFreq))
@@ -48,7 +48,9 @@ func main() {
 	C.fobos_rx_set_lna_gain(dev, 1)
 	C.fobos_rx_set_vga_gain(dev, 10)
 
-	var srHz C.double = 5e6
+	//Set the sampling rate to 8 MHz, it is the minimum supported by Fobos
+	var srHz C.double = 8e6
+
 	var actualSr C.double
 	C.fobos_rx_set_samplerate(dev, srHz, &actualSr)
 	fmt.Println("Actual sampling frequency:", float64(actualSr))
@@ -61,9 +63,19 @@ func main() {
 	defer C.fobos_rx_stop_sync(dev)
 
 	iqBuf := make([]float32, bufLen*2)
+
 	for {
 		var actual C.uint32_t
 		C.fobos_rx_read_sync(dev, (*C.float)(unsafe.Pointer(&iqBuf[0])), &actual)
-		fmt.Printf("Received %d sampls\n", actual)
+		if actual != 0 {
+			//fmt.Printf("Received %d samples\n", int(actual))
+			// Process the received samples in iqBuf
+			// For demonstration, we will just print the first few samples
+			//for i := 0; i < 10 && i < int(actual); i++ {
+			//fmt.Printf("Sample %d: I = %f, Q = %f\n", i, iqBuf[i*2], iqBuf[i*2+1])
+			//}
+		} else {
+			fmt.Println("No samples received")
+		}
 	}
 }
